@@ -113,10 +113,10 @@ variable "fortimanager_host_ip" {
 variable "fortimanager_byol_license" {
   description = "Fortimanager byol license"
 }
-variable "create_vpc" {
-  description = "Boolean Create the vpc in this deployment. "
-  type = bool
-}
+//variable "create_vpc" {
+//  description = "Boolean Create the vpc in this deployment. "
+//  type = bool
+//}
 variable "vpc_tag_key" {
     description = "Random Tag Key to place on VPC for data ID"
 }

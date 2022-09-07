@@ -1,3 +1,5 @@
+
+/*
 output "fgt_login_info" {
   value = <<-FGTLOGIN
   # fgt username: admin
@@ -42,3 +44,4 @@ output "gwlb_info" {
   # gwlb gwlb_ip2 : ${element(module.security-vpc-gwlb.gwlb_ip2, 0)}
   GWLBINFO
 }
+*/

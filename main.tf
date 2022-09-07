@@ -6,7 +6,7 @@ locals {
 }
 
 locals {
-    id_tag = var.vpc_tag_name != "" ? tomap({(var.vpc_tag_key) = (var.vpc_tag_value)}) : {}
+    id_tag = var.vpc_tag_key != "" ? tomap({(var.vpc_tag_key) = (var.vpc_tag_value)}) : {}
 }
 
 provider "aws" {
@@ -227,14 +227,13 @@ module "allow_public_subnets" {
 # Security VPC, IGW, Subnets, Route Tables, Route Table Associations
 #
 module "base-vpc" {
-  count                           = var.create_vpc ? 1 : 0
   source                          = "git::https://github.com/40netse/base_vpc_dual_az.git"
   aws_region                      = var.aws_region
   customer_prefix                 = var.cp
   environment                     = var.env
   vpc_name_security               = var.vpc_name_security
-  availability_zone1              = local.availability_zone_1
-  availability_zone2              = local.availability_zone_2
+  availability_zone1              = var.availability_zone1
+  availability_zone2              = var.availability_zone2
   vpc_cidr_security               = var.vpc_cidr_security
   subnet_bits                     = var.subnet_bits
   public1_description             = var.public1_description
@@ -565,7 +564,7 @@ module "fortigate_2" {
   aws_ec2_instance_name       = "${var.cp}-${var.env}-${var.vpc_name_security}-${var.fortigate_instance_name_2}"
   availability_zone           = local.availability_zone_2
   enable_private_interface    = true
-  enable_sync_interface       = true
+  enable_sync_interface       = false
   enable_hamgmt_interface     = false
   enable_public_ips           = var.create_public_elastic_ip
   public_subnet_id            = module.base-vpc.public2_subnet_id
