@@ -117,8 +117,8 @@ variable "create_vpc" {
   description = "Boolean Create the vpc in this deployment. "
   type = bool
 }
-variable "vpc_tag_name" {
-    description = "Random Tag Name to place on VPC for data ID"
+variable "vpc_tag_key" {
+    description = "Random Tag Key to place on VPC for data ID"
 }
 variable "vpc_tag_value" {
     description = "Random Tag Value to place on VPC for data ID"

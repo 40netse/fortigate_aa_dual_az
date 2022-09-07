@@ -1,5 +1,19 @@
+
+locals {
+    common_tags = {
+    Environment = var.env
+  }
+}
+
+locals {
+    id_tag = var.vpc_tag_name != "" ? tomap({(var.vpc_tag_key) = (var.vpc_tag_value)}) : {}
+}
+
 provider "aws" {
-  region = var.aws_region
+  region     = var.aws_region
+  default_tags {
+    tags = merge(local.common_tags, local.id_tag)
+  }
 }
 
 locals {
@@ -214,35 +228,33 @@ module "allow_public_subnets" {
 #
 module "base-vpc" {
   count                           = var.create_vpc ? 1 : 0
-  source                          = "./base_vpc_dual_az"
+  source                          = "git::https://github.com/40netse/base_vpc_dual_az.git"
   aws_region                      = var.aws_region
   customer_prefix                 = var.cp
   environment                     = var.env
-  vpc_name                        = var.vpc_name_security
+  vpc_name_security               = var.vpc_name_security
   availability_zone1              = local.availability_zone_1
   availability_zone2              = local.availability_zone_2
-  vpc_cidr                        = var.vpc_cidr_security
-  public1_subnet_cidr             = local.public_subnet_cidr_az1
-  public2_subnet_cidr             = local.public_subnet_cidr_az2
-  private1_subnet_cidr            = local.private_subnet_cidr_az1
-  private2_subnet_cidr            = local.private_subnet_cidr_az2
+  vpc_cidr_security               = var.vpc_cidr_security
+  subnet_bits                     = var.subnet_bits
   public1_description             = var.public1_description
   public2_description             = var.public2_description
   private1_description            = var.private1_description
   private2_description            = var.private2_description
   tgw1_description                = var.tgw1_description
-  tgw1_description                = var.tgw2_description
-  vpc_tag_name                    = var.vpc_tag_name
+  tgw2_description                = var.tgw2_description
+  vpc_tag_key                      = var.vpc_tag_key
   vpc_tag_value                   = var.vpc_tag_value
 }
 
 module "vpc-gwlb" {
   source                           = "git::https://github.com/40netse/terraform-modules.git//aws_gwlb"
-  gwlb_name                        = "${var.cp}-${var.env}"
+  name                             = "${var.cp}-${var.env}"
   subnet_az1                       = module.base-vpc.private1_subnet_id
   subnet_az2                       = module.base-vpc.private2_subnet_id
   elb_listener_port                = var.elb_listener_port
-  enable_cross_zone_load_balancing = var.enable_cross_az_lb
+  enable_cross_az_lb               = var.enable_cross_az_lb
+  vpc_id                           = module.base-vpc.vpc_id
 }
 
 module "vpc-transit-gateway" {
