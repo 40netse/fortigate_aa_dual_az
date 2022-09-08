@@ -87,6 +87,10 @@ data "template_file" "fgt_userdata_byol1" {
     fgt_admin_password    = var.fgt_admin_password
     gwlb_ip1              = element(module.vpc-gwlb.gwlb_ip1, 0)
     gwlb_ip2              = element(module.vpc-gwlb.gwlb_ip2, 0)
+    config-sync-role      = "primary"
+    config-sync-port      = var.config_sync_port
+    config-sync-secret    = var.config_sync_secret
+    config-sync-primary-peer-stanza = ""
   }
 }
 
@@ -109,6 +113,10 @@ data "template_file" "fgt_userdata_byol2" {
     fgt_admin_password    = var.fgt_admin_password
     gwlb_ip1              = element(module.vpc-gwlb.gwlb_ip1, 0)
     gwlb_ip2              = element(module.vpc-gwlb.gwlb_ip2, 0)
+    config-sync-role      = "secondary"
+    config-sync-port      = var.config_sync_port
+    config-sync-secret    = var.config_sync_secret
+    config-sync-primary-peer-stanza = "set primary-ip ${local.fgt_public1_ip_address}"
   }
 }
 
@@ -129,6 +137,10 @@ data "template_file" "fgt_userdata_paygo1" {
     fgt_admin_password    = var.fgt_admin_password
     gwlb_ip1              = element(module.vpc-gwlb.gwlb_ip1, 0)
     gwlb_ip2              = element(module.vpc-gwlb.gwlb_ip2, 0)
+    config-sync-role      = "primary"
+    config-sync-port      = var.config_sync_port
+    config-sync-secret    = var.config_sync_secret
+    config-sync-primary-peer-stanza = ""
   }
 }
 
@@ -150,6 +162,10 @@ data "template_file" "fgt_userdata_paygo2" {
     fgt_admin_password    = var.fgt_admin_password
     gwlb_ip1              = element(module.vpc-gwlb.gwlb_ip1, 0)
     gwlb_ip2              = element(module.vpc-gwlb.gwlb_ip2, 0)
+    config-sync-role      = "secondary"
+    config-sync-port      = var.config_sync_port
+    config-sync-secret    = var.config_sync_secret
+    config-sync-primary-peer-stanza = "set primary-ip ${local.fgt_public1_ip_address}"
   }
 }
 

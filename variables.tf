@@ -64,6 +64,12 @@ variable "fgt_byol_2_license" {
 variable "fgt_host_ip" {
   description = "Host IP for each interface of the Fortigate"
 }
+variable "config_sync_port" {
+  description = "Port definition for autoscale config sync port on FortiOS configuration"
+}
+variable "config_sync_secret" {
+  description = "definition for autoscale config sync secret on FortiOS configuration"
+}
 variable "enable_linux_instances" {
   description = "Boolean to allow creation of Linux Instances in East/West VPCs"
   type        = bool

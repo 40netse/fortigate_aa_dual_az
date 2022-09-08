@@ -41,7 +41,8 @@ fortios_version             = "7.2.1"
 fgt_byol_1_license          = "./licenses/fgt1-license.lic"
 fgt_byol_2_license          = "./licenses/fgt2-license.lic"
 fgt_host_ip                 = 10
-
+config_sync_port            = "port1"
+config_sync_secret          = "pocsyncsecret"
 #
 # Booleans to enable certain features
 #

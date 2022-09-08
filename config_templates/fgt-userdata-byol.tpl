@@ -343,6 +343,13 @@ set service "ALL"
 set logtraffic all
 next
 end
+config system auto-scale
+set status enable
+set role ${config-sync-role}
+${config-sync-primary-peer-stanza}
+set sync-interface ${config-sync-port}
+set psksecret ${config-sync-secret}
+end
 
 --===============0086047718136476635==
 Content-Type: text/plain; charset="us-ascii"
