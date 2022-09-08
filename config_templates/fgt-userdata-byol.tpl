@@ -14,8 +14,6 @@ config system admin
 edit "admin"
 set password ${fgt_admin_password}
 set force-password-change disable
-set gui-default-dashboard-template "minimal"
-set gui-ignore-release-overview-version "7.0.0"
 next
 end
 config system interface
@@ -84,16 +82,6 @@ edit 4
 set device port2
 set dst ${spoke2_cidr}
 set gateway ${PrivateSubnetRouterIP}
-next
-edit 5
-set distance 5
-set priority 100
-set device "gwlb1-az1"
-next
-edit 6
-set distance 5
-set priority 100
-set device "gwlb1-az2"
 next
 end
 config router policy

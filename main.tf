@@ -282,6 +282,23 @@ module "vpc-gwlb" {
   instance1_id                     = module.fortigate_1.instance_id
   instance2_id                     = module.fortigate_2.instance_id
 }
+#
+# Point the tgw route table default route to the gwlb endpoint
+#
+resource "aws_route" "gwlb_endpoint_az1" {
+  depends_on             = [module.vpc-gwlb]
+  route_table_id         = module.base-vpc.tgw1_route_table_id
+  destination_cidr_block = "0.0.0.0/0"
+  vpc_endpoint_id        = module.vpc-gwlb.gwlb_endpoint_az1
+}
+
+
+resource "aws_route" "gwlb_endpoint_az2" {
+  depends_on             = [module.vpc-transit-gateway]
+  route_table_id         = module.base-vpc.tgw2_route_table_id
+  destination_cidr_block = "0.0.0.0/0"
+  vpc_endpoint_id        = module.vpc-gwlb.gwlb_endpoint_az2
+}
 
 module "vpc-transit-gateway" {
   count                           = var.create_transit_gateway ? 1 : 0
