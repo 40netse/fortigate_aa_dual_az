@@ -85,6 +85,8 @@ data "template_file" "fgt_userdata_byol1" {
     private_subnet_mask   = cidrnetmask(local.private_subnet_cidr_az1)
     PrivateSubnetRouterIP = cidrhost(local.private_subnet_cidr_az1, 1)
     fgt_admin_password    = var.fgt_admin_password
+    gwlb_ip1              = element(module.vpc-gwlb.gwlb_ip1, 0)
+    gwlb_ip2              = element(module.vpc-gwlb.gwlb_ip2, 0)
   }
 }
 
@@ -105,6 +107,8 @@ data "template_file" "fgt_userdata_byol2" {
     private_subnet_mask   = cidrnetmask(local.private_subnet_cidr_az2)
     PrivateSubnetRouterIP = cidrhost(local.private_subnet_cidr_az2, 1)
     fgt_admin_password    = var.fgt_admin_password
+    gwlb_ip1              = element(module.vpc-gwlb.gwlb_ip1, 0)
+    gwlb_ip2              = element(module.vpc-gwlb.gwlb_ip2, 0)
   }
 }
 
@@ -123,6 +127,8 @@ data "template_file" "fgt_userdata_paygo1" {
     private_subnet_mask   = cidrnetmask(local.private_subnet_cidr_az1)
     PrivateSubnetRouterIP = cidrhost(local.private_subnet_cidr_az1, 1)
     fgt_admin_password    = var.fgt_admin_password
+    gwlb_ip1              = element(module.vpc-gwlb.gwlb_ip1, 0)
+    gwlb_ip2              = element(module.vpc-gwlb.gwlb_ip2, 0)
   }
 }
 
@@ -142,13 +148,15 @@ data "template_file" "fgt_userdata_paygo2" {
     private_subnet_mask   = cidrnetmask(local.private_subnet_cidr_az2)
     PrivateSubnetRouterIP = cidrhost(local.private_subnet_cidr_az2, 1)
     fgt_admin_password    = var.fgt_admin_password
+    gwlb_ip1              = element(module.vpc-gwlb.gwlb_ip1, 0)
+    gwlb_ip2              = element(module.vpc-gwlb.gwlb_ip2, 0)
   }
 }
 
 
 #
 # AMI to be used by the BYOL instance of Fortigate]
-# Change the foritos_version and the use_fortigate_byol variables in terraform.tfvars to change it
+# Change the fortios_version and the use_fortigate_byol variables in terraform.tfvars to change it
 #
 data "aws_ami" "fortigate_byol" {
   most_recent = true
@@ -169,7 +177,7 @@ data "aws_ami" "fortigate_byol" {
 
 #
 # AMI to be used by the PAYGO instance of Fortigate
-# Change the foritos_version and the use_fortigate_byol variables in terraform.tfvars to change it
+# Change the fortios_version and the use_fortigate_byol variables in terraform.tfvars to change it
 #
 data "aws_ami" "fortigate_paygo" {
   most_recent = true
@@ -236,6 +244,7 @@ module "base-vpc" {
   availability_zone2              = var.availability_zone2
   vpc_cidr_security               = var.vpc_cidr_security
   subnet_bits                     = var.subnet_bits
+  create_tgw_connect_subnets      = var.create_transit_gateway ? true : false
   public1_description             = var.public1_description
   public2_description             = var.public2_description
   private1_description            = var.private1_description
@@ -254,6 +263,8 @@ module "vpc-gwlb" {
   elb_listener_port                = var.elb_listener_port
   enable_cross_az_lb               = var.enable_cross_az_lb
   vpc_id                           = module.base-vpc.vpc_id
+  instance1_id                     = module.fortigate_1.instance_id
+  instance2_id                     = module.fortigate_2.instance_id
 }
 
 module "vpc-transit-gateway" {
@@ -294,11 +305,11 @@ module "vpc-transit-gateway-attachment-security" {
   source                         = "git::https://github.com/40netse/terraform-modules.git//aws_tgw_attachment"
   tgw_attachment_name            = "${var.cp}-${var.env}-${var.vpc_name_security}-tgw-attachment"
 
-  transit_gateway_id                              = module.vpc-transit-gateway[0].tgw_id
-  subnet_ids                                      = [ element(module.base-vpc.tgw1_subnet_id, 0),
-                                                      element(module.base-vpc.tgw2_subnet_id,0) ]
+  transit_gateway_id             = module.vpc-transit-gateway[0].tgw_id
+  subnet_ids                     = [ element(module.base-vpc.tgw1_subnet_id, 0),
+                                     element(module.base-vpc.tgw2_subnet_id, 0) ]
+  vpc_id                         = module.base-vpc.vpc_id
   transit_gateway_default_route_table_propogation = "false"
-  vpc_id                                          = module.base-vpc.vpc_id
 }
 
 

@@ -36,6 +36,35 @@ set mtu-override enable
 set mtu 9001
 next
 end
+
+config system vdom-exception
+edit 1
+set object system.interface
+next
+edit 2
+set object router.static
+next
+end
+
+config system geneve
+edit "gwlb1-az1"
+set interface "port1"
+set type ppp
+set remote-ip ${gwlb_ip1}
+next
+edit "gwlb1-az2"
+set interface "port1"
+set type ppp
+set remote-ip ${gwlb_ip2}
+next
+end
+
+config system zone
+edit "gwlb1-tunnels"
+set interface "gwlb1-az1" "gwlb1-az2"
+next
+end
+
 config router static
 edit 1
 set device port1
@@ -56,15 +85,40 @@ set device port2
 set dst ${spoke2_cidr}
 set gateway ${PrivateSubnetRouterIP}
 next
+edit 5
+set distance 5
+set priority 100
+set device "gwlb1-az1"
+next
+edit 6
+set distance 5
+set priority 100
+set device "gwlb1-az2"
+next
 end
-config system vdom-exception
+config router policy
 edit 1
-set object system.interface
+set input-device "gwlb1-az1"
+set dst "10.0.0.0/255.0.0.0" "17.16.0.0/255.255.240.0" "192.168.0.0/255.255.0.0"
+set output-device "gwlb1-az1"
 next
 edit 2
-set object router.static
+set input-device "gwlb1-az1"
+set src "10.0.0.0/255.0.0.0" "17.16.0.0/255.255.240.0" "192.168.0.0/255.255.0.0"
+set output-device "gwlb1-az1"
+next
+edit 3
+set input-device "gwlb1-az2"
+set dst "10.0.0.0/255.0.0.0" "172.16.0.0/255.255.240.0" "192.168.0.0/255.255.0.0"
+set output-device "gwlb1-az2"
+next
+edit 4
+set input-device "gwlb1-az2"
+set src "10.0.0.0/255.0.0.0" "172.16.0.0/255.255.240.0" "192.168.0.0/255.255.0.0"
+set output-device "gwlb1-az2"
 next
 end
+
 config firewall address
 edit toSpoke1
 set subnet ${spoke1_cidr}
@@ -72,11 +126,41 @@ next
 edit toSpoke2
 set subnet ${spoke2_cidr}
 next
+edit "10.0.0.0/8"
+set subnet 10.0.0.0 255.0.0.0
+next
+edit "172.16.0.0/20"
+set subnet 172.16.0.0 255.255.240.0
+next
+edit "192.168.0.0/16"
+set subnet 192.168.0.0 255.255.0.0
+next
+edit "UnitedStates"
+set type geography
+set country "US"
+next
+edit "UnitedStatesIslands"
+set type geography
+set country "UM"
+next
+edit "Canada"
+set type geography
+set country "CA"
+next
 end
+
 config firewall addrgrp
+edit "rfc-1918-subnets"
+set member "10.0.0.0/8" "172.16.0.0/20" "192.168.0.0/16"
+next
+edit "NorthAmerica"
+set member "Canada" "UnitedStates" "UnitedStatesIslands"
+next
 edit to-WEST
 set member toSpoke1 toSpoke2 toMgmt
+next
 end
+
 config firewall vip
 edit "vip_to_east"
 set extintf "port1"
@@ -121,6 +205,7 @@ set extport 2224
 set mappedport 22
 next
 end
+
 config firewall policy
 edit 1
 set name East-West
@@ -207,6 +292,51 @@ set srcintf "port1"
 set dstintf "port2"
 set srcaddr "all"
 set dstaddr "vip_to_fortimanager_ssh"
+set action accept
+set schedule "always"
+set service "ALL"
+set logtraffic all
+next
+edit 9
+set name "egress"
+set srcintf "gwlb1-tunnels"
+set dstintf "port1"
+set srcaddr "rfc-1918-subnets"
+set dstaddr "NorthAmerica"
+set action accept
+set schedule "always"
+set service "ALL"
+set logtraffic all
+set nat enable
+next
+edit 10
+set name "ingress"
+set srcintf "gwlb1-tunnels"
+set dstintf "gwlb1-tunnels"
+set srcaddr "NorthAmerica"
+set dstaddr "rfc-1918-subnets"
+set action accept
+set schedule "always"
+set service "ALL"
+set logtraffic all
+next
+edit 11
+set name "egress-hairpin"
+set srcintf "gwlb1-tunnels"
+set dstintf "gwlb1-tunnels"
+set srcaddr "rfc-1918-subnets"
+set dstaddr "NorthAmerica"
+set action accept
+set schedule "always"
+set service "ALL"
+set logtraffic all
+next
+edit 12
+set name "east-west"
+set srcintf "gwlb1-tunnels"
+set dstintf "gwlb1-tunnels"
+set srcaddr "rfc-1918-subnets"
+set dstaddr "rfc-1918-subnets"
 set action accept
 set schedule "always"
 set service "ALL"

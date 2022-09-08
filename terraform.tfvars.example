@@ -26,15 +26,15 @@ keypair                     = ""
 # cp (customer_prefix) and env (environment) prepended to all resources created by the template.
 # Used for identification. e.g. "<customer_prefix>-<prod/test/dev>"
 #
-cp                        = "prefix"
-env                       = "env"
-vpc_name_security         = "security"
+cp                          = "prefix"
+env                         = "env"
+vpc_name_security           = "security"
 vpc_name_east               = "east"
 vpc_name_west               = "west"
 
-vpc_cidr_security         = "10.0.0.0/16"
-vpc_cidr_east             = "192.168.0.0/24"
-vpc_cidr_west             = "192.168.1.0/24"
+vpc_cidr_security           = "10.0.0.0/16"
+vpc_cidr_east               = "192.168.0.0/24"
+vpc_cidr_west               = "192.168.1.0/24"
 
 fgt_admin_password          = "Texas4me!"
 fortios_version             = "7.2.1"
@@ -98,9 +98,9 @@ fortimanager_byol_license          = "./licenses/fmgr-license.lic"
 #
 # create a base_vpc to deploy into. If set to false, use the TAG value to find the VPC to deploy into
 #
-create_vpc                = true
-vpc_tag_name              = "fortigate-vpc-identifier"
-vpc_tag_value             = "fortigate-vpc-random-67823dfs"
+
+vpc_tag_key               = "vpc-tag-key"
+vpc_tag_value             = "vpc-tag-value"
 
 
 #
