@@ -15,6 +15,7 @@ config system admin
 edit "admin"
 set password ${fgt_admin_password}
 set force-password-change disable
+set gui-ignore-release-overview-version "7.2.0"
 next
 end
 config system interface
@@ -115,6 +116,13 @@ next
 edit toSpoke2
 set subnet ${spoke2_cidr}
 next
+edit "fortimanager"
+set type iprange
+set associated-interface "port2"
+set color 6
+set start-ip ${fortimanager_ip}
+set end-ip ${fortimanager_ip}
+next
 edit "10.0.0.0/8"
 set subnet 10.0.0.0 255.0.0.0
 next
@@ -194,20 +202,8 @@ set extport 2224
 set mappedport 22
 next
 end
-
 config firewall policy
-edit 1
-set name East-West
-set srcintf port2
-set dstintf port2
-set srcaddr all
-set dstaddr to-WEST
-set action accept
-set schedule always
-set service ALL
-set logtraffic all
-next
-edit 2
+edit 0
 set name South-North
 set srcintf port2
 set dstintf port1
@@ -220,7 +216,7 @@ set service ALL
 set logtraffic all
 set nat enable
 next
-edit 3
+edit 0
 set name "vip_to_east"
 set srcintf "port1"
 set dstintf "port2"
@@ -230,8 +226,9 @@ set action accept
 set schedule "always"
 set service "ALL"
 set logtraffic all
+set nat enable
 next
-edit 4
+edit 0
 set name "vip_to_west"
 set srcintf "port1"
 set dstintf "port2"
@@ -241,8 +238,9 @@ set action accept
 set schedule "always"
 set service "ALL"
 set logtraffic all
+set nat enable
 next
-edit 5
+edit 0
 set name "vip_to_east_80"
 set srcintf "port1"
 set dstintf "port2"
@@ -252,8 +250,9 @@ set action accept
 set schedule "always"
 set service "ALL"
 set logtraffic all
+set nat enable
 next
-edit 6
+edit 0
 set name "vip_to_west_80"
 set srcintf "port1"
 set dstintf "port2"
@@ -263,8 +262,9 @@ set action accept
 set schedule "always"
 set service "ALL"
 set logtraffic all
+set nat enable
 next
-edit 7
+edit 0
 set name "vip_to_fortimanager_443"
 set srcintf "port1"
 set dstintf "port2"
@@ -274,8 +274,9 @@ set action accept
 set schedule "always"
 set service "ALL"
 set logtraffic all
+set nat enable
 next
-edit 8
+edit 0
 set name "vip_to_fortimanager_22"
 set srcintf "port1"
 set dstintf "port2"
@@ -285,8 +286,9 @@ set action accept
 set schedule "always"
 set service "ALL"
 set logtraffic all
+set nat enable
 next
-edit 9
+edit 0
 set name "egress"
 set srcintf "gwlb1-tunnels"
 set dstintf "port1"
@@ -298,7 +300,7 @@ set service "ALL"
 set logtraffic all
 set nat enable
 next
-edit 10
+edit 0
 set name "ingress"
 set srcintf "gwlb1-tunnels"
 set dstintf "gwlb1-tunnels"
@@ -309,7 +311,7 @@ set schedule "always"
 set service "ALL"
 set logtraffic all
 next
-edit 11
+edit 0
 set name "egress-hairpin"
 set srcintf "gwlb1-tunnels"
 set dstintf "gwlb1-tunnels"
@@ -320,7 +322,7 @@ set schedule "always"
 set service "ALL"
 set logtraffic all
 next
-edit 12
+edit 0
 set name "east-west"
 set srcintf "gwlb1-tunnels"
 set dstintf "gwlb1-tunnels"
@@ -332,6 +334,7 @@ set service "ALL"
 set logtraffic all
 next
 end
+
 config system auto-scale
 set status enable
 set role ${config-sync-role}

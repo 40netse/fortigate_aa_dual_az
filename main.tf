@@ -85,6 +85,7 @@ data "template_file" "fgt_userdata_byol1" {
     private_subnet_mask   = cidrnetmask(local.private_subnet_cidr_az1)
     PrivateSubnetRouterIP = cidrhost(local.private_subnet_cidr_az1, 1)
     fgt_admin_password    = var.fgt_admin_password
+    fortimanager_ip       = local.fortimanager_ip_address
     gwlb_ip1              = element(module.vpc-gwlb.gwlb_ip1, 0)
     gwlb_ip2              = element(module.vpc-gwlb.gwlb_ip2, 0)
     config-sync-role      = "primary"
@@ -111,6 +112,7 @@ data "template_file" "fgt_userdata_byol2" {
     private_subnet_mask   = cidrnetmask(local.private_subnet_cidr_az2)
     PrivateSubnetRouterIP = cidrhost(local.private_subnet_cidr_az2, 1)
     fgt_admin_password    = var.fgt_admin_password
+    fortimanager_ip       = local.fortimanager_ip_address
     gwlb_ip1              = element(module.vpc-gwlb.gwlb_ip1, 0)
     gwlb_ip2              = element(module.vpc-gwlb.gwlb_ip2, 0)
     config-sync-role      = "secondary"
@@ -135,6 +137,7 @@ data "template_file" "fgt_userdata_paygo1" {
     private_subnet_mask   = cidrnetmask(local.private_subnet_cidr_az1)
     PrivateSubnetRouterIP = cidrhost(local.private_subnet_cidr_az1, 1)
     fgt_admin_password    = var.fgt_admin_password
+    fortimanager_ip       = local.fortimanager_ip_address
     gwlb_ip1              = element(module.vpc-gwlb.gwlb_ip1, 0)
     gwlb_ip2              = element(module.vpc-gwlb.gwlb_ip2, 0)
     config-sync-role      = "primary"
@@ -160,6 +163,7 @@ data "template_file" "fgt_userdata_paygo2" {
     private_subnet_mask   = cidrnetmask(local.private_subnet_cidr_az2)
     PrivateSubnetRouterIP = cidrhost(local.private_subnet_cidr_az2, 1)
     fgt_admin_password    = var.fgt_admin_password
+    fortimanager_ip       = local.fortimanager_ip_address
     gwlb_ip1              = element(module.vpc-gwlb.gwlb_ip1, 0)
     gwlb_ip2              = element(module.vpc-gwlb.gwlb_ip2, 0)
     config-sync-role      = "secondary"
