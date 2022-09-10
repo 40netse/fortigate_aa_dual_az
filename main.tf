@@ -347,6 +347,7 @@ module "vpc-transit-gateway-attachment-security" {
                                      element(module.base-vpc.tgw2_subnet_id, 0) ]
   vpc_id                         = module.base-vpc.vpc_id
   transit_gateway_default_route_table_propogation = "false"
+  appliance_mode_support         = var.appliance_mode_support
 }
 
 

@@ -1,14 +1,35 @@
 
-/*
-output "fgt_login_info" {
-  value = <<-FGTLOGIN
-  # fgt username: admin
-  # fgt initial password: instance-id of the fgt
-  # fgt1 login url: https://${module.fgcp-ha.fgt1_eip_public_ip}
-  # fgt2 login url: https://${module.fgcp-ha.fgt2_eip_public_ip}
-  FGTLOGIN
-}
 
+output "_1_fgt1_login_info" {
+  description = "Fortigate 1 login URL"
+  value = "fgt1 login url: https://${element(module.fortigate_1.public_eip, 0)}"
+}
+output "_2_fgt2_login_info" {
+  description = "Fortigate 2 login URL"
+  value = "fgt2 login url: https://${element(module.fortigate_2.public_eip, 0)}"
+
+}
+output "_3_east_instance_login_info" {
+  description = "SSH login to Fortigate AZ1"
+  value = "ssh -i ${var.keypair} admin@${element(module.fortigate_1.public_eip, 0)}"
+
+}
+output "_4_west_instance_login_info" {
+  description = "SSH login to Fortigate AZ2"
+  value = "ssh -i ${var.keypair} admin@${element(module.fortigate_2.public_eip, 0)}"
+
+}
+output "_5_east_instance_login_info" {
+  description = "SSH login to East instance"
+  value = "ssh -i ${var.keypair} ubuntu@${element(module.fortigate_1.public_eip, 0)} -p 2222"
+
+}
+output "_6_west_instance_login_info" {
+  description = "SSH login to West instance"
+  value = "ssh -i ${var.keypair} ubuntu@${element(module.fortigate_2.public_eip, 0)} -p 2223"
+
+}
+/*
 output "public_nlb_test_urls" {
   value = <<-NLBURL
   # nlb app1 url - provides fixed content from the spoke1 web servers through the security stack

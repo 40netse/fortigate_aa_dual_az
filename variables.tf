@@ -133,6 +133,10 @@ variable "create_transit_gateway" {
   description = "Boolean Create the transit gateway in this deployment. If TGW isn't created, neither will connected objects"
   type = bool
 }
+variable "appliance_mode_support" {
+  description = "Boolean to turn on appliance mode support on security vpc tgw attachment"
+  type = bool
+}
 variable "use_fortigate_byol" {
   description = "Boolean Use the Fortigate BYOL AMI"
   type = bool

@@ -108,6 +108,7 @@ vpc_tag_value             = "vpc-tag-value"
 # create a transit gateway for test traffic. set to false if the transit gateway already exists
 #
 create_transit_gateway                = true
+appliance_mode_support                = true
 
 #
 # How to license the fortigate

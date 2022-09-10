@@ -7,7 +7,6 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment; filename="config"
 
-
 config system global
 set hostname ${fgt_id}
 end
@@ -18,6 +17,7 @@ set force-password-change disable
 set gui-ignore-release-overview-version "7.2.0"
 next
 end
+
 config system interface
 edit port1
 set alias public
@@ -47,12 +47,12 @@ next
 end
 
 config system geneve
-edit "gwlb1-az1"
+edit "gwlb-az1"
 set interface "port1"
 set type ppp
 set remote-ip ${gwlb_ip1}
 next
-edit "gwlb1-az2"
+edit "gwlb-az2"
 set interface "port1"
 set type ppp
 set remote-ip ${gwlb_ip2}
@@ -60,52 +60,55 @@ next
 end
 
 config system zone
-edit "gwlb1-tunnels"
-set interface "gwlb1-az1" "gwlb1-az2"
+edit "gwlb-tunnels"
+set interface "gwlb-az1" "gwlb-az2"
 next
 end
 
 config router static
-edit 1
+edit 0
 set device port1
 set gateway ${PublicSubnetRouterIP}
 next
-edit 2
+edit 0
 set device port2
 set dst ${security_cidr}
 set gateway ${PrivateSubnetRouterIP}
 next
-edit 3
+edit 0
 set device port2
 set dst ${spoke1_cidr}
 set gateway ${PrivateSubnetRouterIP}
 next
-edit 4
+edit 0
 set device port2
 set dst ${spoke2_cidr}
 set gateway ${PrivateSubnetRouterIP}
 next
+edit 0
+set device gwlb-az1
+set dst 192.168.0.0 255.255.0.0
+set distance 20
+next
+edit 0
+set device gwlb-az2
+set dst 192.168.0.0 255.255.0.0
+set distance 20
+next
 end
+
 config router policy
-edit 1
-set input-device "gwlb1-az1"
-set dst "10.0.0.0/255.0.0.0" "17.16.0.0/255.255.240.0" "192.168.0.0/255.255.0.0"
-set output-device "gwlb1-az1"
-next
-edit 2
-set input-device "gwlb1-az1"
+edit 0
+set input-device "gwlb-az1"
 set src "10.0.0.0/255.0.0.0" "17.16.0.0/255.255.240.0" "192.168.0.0/255.255.0.0"
-set output-device "gwlb1-az1"
+set dst "10.0.0.0/255.0.0.0" "17.16.0.0/255.255.240.0" "192.168.0.0/255.255.0.0"
+set output-device "gwlb-az1"
 next
-edit 3
-set input-device "gwlb1-az2"
+edit 0
+set input-device "gwlb-az2"
+set src "10.0.0.0/255.0.0.0" "17.16.0.0/255.255.240.0" "192.168.0.0/255.255.0.0"
 set dst "10.0.0.0/255.0.0.0" "172.16.0.0/255.255.240.0" "192.168.0.0/255.255.0.0"
-set output-device "gwlb1-az2"
-next
-edit 4
-set input-device "gwlb1-az2"
-set src "10.0.0.0/255.0.0.0" "172.16.0.0/255.255.240.0" "192.168.0.0/255.255.0.0"
-set output-device "gwlb1-az2"
+set output-device "gwlb-az2"
 next
 end
 
@@ -202,20 +205,8 @@ set extport 2224
 set mappedport 22
 next
 end
+
 config firewall policy
-edit 0
-set name South-North
-set srcintf port2
-set dstintf port1
-set srcaddr all
-set dstaddr to-WEST
-set dstaddr-negate enable
-set action accept
-set schedule always
-set service ALL
-set logtraffic all
-set nat enable
-next
 edit 0
 set name "vip_to_east"
 set srcintf "port1"
@@ -290,10 +281,10 @@ set nat enable
 next
 edit 0
 set name "egress"
-set srcintf "gwlb1-tunnels"
+set srcintf "gwlb-tunnels"
 set dstintf "port1"
 set srcaddr "rfc-1918-subnets"
-set dstaddr "NorthAmerica"
+set dstaddr "all"
 set action accept
 set schedule "always"
 set service "ALL"
@@ -302,8 +293,8 @@ set nat enable
 next
 edit 0
 set name "ingress"
-set srcintf "gwlb1-tunnels"
-set dstintf "gwlb1-tunnels"
+set srcintf "gwlb-tunnels"
+set dstintf "gwlb-tunnels"
 set srcaddr "NorthAmerica"
 set dstaddr "rfc-1918-subnets"
 set action accept
@@ -313,8 +304,8 @@ set logtraffic all
 next
 edit 0
 set name "egress-hairpin"
-set srcintf "gwlb1-tunnels"
-set dstintf "gwlb1-tunnels"
+set srcintf "gwlb-tunnels"
+set dstintf "gwlb-tunnels"
 set srcaddr "rfc-1918-subnets"
 set dstaddr "NorthAmerica"
 set action accept
@@ -324,8 +315,8 @@ set logtraffic all
 next
 edit 0
 set name "east-west"
-set srcintf "gwlb1-tunnels"
-set dstintf "gwlb1-tunnels"
+set srcintf "gwlb-tunnels"
+set dstintf "gwlb-tunnels"
 set srcaddr "rfc-1918-subnets"
 set dstaddr "rfc-1918-subnets"
 set action accept
