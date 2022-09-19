@@ -291,7 +291,8 @@ module "vpc-gwlb" {
 #
 resource "aws_route" "gwlb_endpoint_az1" {
   depends_on             = [module.vpc-gwlb]
-  route_table_id         = element(module.base-vpc.tgw1_route_table_id, 0)
+  count                  = var.create_transit_gateway ? 1 : 0
+  route_table_id         = var.create_transit_gateway ? element(module.base-vpc.tgw1_route_table_id, 0) : ""
   destination_cidr_block = "0.0.0.0/0"
   vpc_endpoint_id        = module.vpc-gwlb.gwlb_endpoint_az1
 }
@@ -299,7 +300,8 @@ resource "aws_route" "gwlb_endpoint_az1" {
 
 resource "aws_route" "gwlb_endpoint_az2" {
   depends_on             = [module.vpc-gwlb]
-  route_table_id         = element(module.base-vpc.tgw2_route_table_id, 0)
+  count                  = var.create_transit_gateway ? 1 : 0
+  route_table_id         = var.create_transit_gateway ? element(module.base-vpc.tgw2_route_table_id, 0) : ""
   destination_cidr_block = "0.0.0.0/0"
   vpc_endpoint_id        = module.vpc-gwlb.gwlb_endpoint_az2
 }
