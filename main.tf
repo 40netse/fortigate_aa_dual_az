@@ -753,10 +753,10 @@ module "west_instance" {
 module "fortimanager" {
   source                      = "git::https://github.com/40netse/fortimanager_existing_vpc.git"
   count                       = var.enable_fortimanager ? 1 : 0
-
+  name                        = "${var.cp}-${var.env}-${random_string.random.result}-${var.fortimanager_instance_name}"
   aws_region                  = var.aws_region
-  customer_prefix             = var.cp
-  environment                 = var.env
+  cp                          = var.cp
+  env                         = var.env
   availability_zone           = local.availability_zone_1
   vpc_id                      = module.base-vpc.vpc_id
   subnet_id                   = module.base-vpc.tgw1_subnet_id
