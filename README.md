@@ -13,11 +13,25 @@ This set of templates deploys a pair of Active-Active Fortigates across a DUAL A
 are configured with autoscale "configuration sync" enabled. This allows the Fortigate in AZ1 to become the 
 "configuration primary" and all config changes should be performed on this instance. All changes will be synced to the 
 secondary member. A warning banner is displayed if an administrator attempts to login to the secondary member and make 
-configuration changes. Read-only is recommended login's to the secondary member. 
+configuration changes. 
 
 Additionally, booleans are provided to enable the creation of customer VPC's with linux instances 
 in each customer VPC, preconfigured with a base Apache Server. These instances can be used to generate test traffic 
-that can be used to verify Fortigate inspection of North-South and East-West flows. 
+that can be used to verify Fortigate inspection of North-South and East-West flows. Configurable options in the template
+are as follows:
+    
+    use_fortigate_byol = true           # Use BYOL licensing on the Fortigate. Include licenses in /licenses directory
+    create_transit_gateway = true       # create a Transit Gateway. If true, conditionally create the following:
+        enable_linux_instances = true   # create linux instances in the customer VPC's behind the TGW
+        appliance_mode_support = true   # enable "stickiness" on TGW Attachements
+    
+    enable_cross_az_lb = true           # Allow the gateway load balancer to use Cross AZ Load Balancing
+    create_public_elastic_ip = true     # Create Public IPs on the Fortigate instances
+    enable_fortimanager = true          # Create a Fortimanager in the Security VPC
+        use_fortimanager_byol = true    # Use BYOL Licensing for Fortimanager
+    
+    
+    
 
 This configuration is different from an Active-Passive pair deployment. Each Fortigate will inspect traffic 
 independently and session tables will not be synchronized between the Fortigates. Therefore, stateful failover is not 

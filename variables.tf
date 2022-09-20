@@ -90,15 +90,11 @@ variable "enable_fortimanager" {
   type        = bool
 }
 variable "use_fortimanager_byol" {
-  description = "Boolean Use the Fortimanager BYOL AMI"
+  description = "Boolean to use Fortimanager license, ami, and configuration template"
   type = bool
 }
 variable "fortimanager_enable_public_ips" {
   description = "Boolean to allocatee a public IP (EIP) for Fortimanager"
-  type = bool
-}
-variable "fortimanager_use_byol" {
-  description = "Boolean to use Fortimanager license, ami, and configuration template"
   type = bool
 }
 variable "fortimanager_sg_name" {

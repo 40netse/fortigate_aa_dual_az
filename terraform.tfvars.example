@@ -87,7 +87,6 @@ use_fortimanager_byol                 = true
 # Fortimanager Variables
 #
 fortimanager_enable_public_ips     = false
-fortimanager_use_byol              = true
 fortimanager_sg_name               = "fortimanager security group"
 fortimanager_instance_type         = "c5.xlarge"
 
