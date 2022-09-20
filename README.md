@@ -107,19 +107,28 @@ specify the keypair to use for the Linux instances in the terraform.tfvars
 
 To ssh into the Linux Instances: 
 
-    EAST: ssh -i <path to key pair file> ubuntu@(EIP of Fortigate HA PAIR) -p 2222
-    WEST: ssh -i <path to key pair file> ubuntu@(EIP of Fortigate HA PAIR) -p 2223
+    EAST: ssh -i <path to key pair file> ubuntu@(EIP of Fortigate) -p 2222
+    WEST: ssh -i <path to key pair file> ubuntu@(EIP of Fortigate) -p 2223
+
+To access the Linux Apache Servers:
+    EAST: http://<EIP of Fortigate>:8080
+    WEST: http://<EIP of Fortigate>:8081
 
 ## FAQ \ Troubleshoot
 
-AWS API calls can be debugged on the FortiGate instance that is becoming master with the following CLI commands:
+debug configuration sync status on secondary member with the following CLI commands:
 ```
-diag deb app awsd -1
+diag deb hasync -1
 diag deb enable
 ```
 
 This can be disabled with the following CLI commands:
 ```
-diag deb app awsd 0
+diag deb hasync 0
 diag deb disable
+```
+
+debug FortiOS configuration passed via userdata:
+```
+diag debug cloudinit show
 ```
