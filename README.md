@@ -1,11 +1,10 @@
-# FortiOS FGCP AP HA (Dual AZ) with TGW Attachments in AWS
+# DUAL AZ Fortigate Active-Active Pair and TGW Attachments in AWS
 
 
 ## Table of Contents
   - [Overview](./README.md#overview)
-  - [Solution Components](./README.md#solution-components)
-  - [Terraform Templates](./README.md#terraform-templates)
   - [Deployment](./README.md#deployment)
+  - [Configuration](./README.md#configuration)
   - [FAQ \Troubleshoot](./README.md#faq--troubleshoot)
 
 ## Overview
@@ -43,6 +42,7 @@ the Active-Active pair, the configuration should use a load-balancer on the Nort
 
 On the egress side of the firewalls, a Gateway Load Balancer load-balances all egress traffic across the Fortigate pair.
 
+## Deployment
 This set of Terraform templates should be cloned and deployed using the following commands:
 
     git clone https://github.com/40netse/fortigate_aa_dual_az.git
@@ -56,6 +56,7 @@ To destroy the deployment:
 
     terraform destroy
 
+## Configuration
 A terraform.tfvars.example file is provided as a template. This should be copied to terraform.tfvars and customized for
 given deployment. A few of the main customization variables include:
 
@@ -97,8 +98,6 @@ the traffic correctly depending on the direction of the traffic.
 
 **Reference Diagram:**
 ![Example Diagram](./content/fortigate-aa-dual-az.png)
-
-## Solution Components
 
 These templates provide FortiOS configuration that includes a port-forwarding vip to ssh into the East VPC and 
 West VPC Linux instances on port 2222 for the East VPC and 2223 on the West VPC Linux instances. You will need to 
