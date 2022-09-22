@@ -48,12 +48,12 @@ end
 
 config system geneve
 edit "gwlb-az1"
-set interface "port1"
+set interface "port2"
 set type ppp
 set remote-ip ${gwlb_ip1}
 next
 edit "gwlb-az2"
-set interface "port1"
+set interface "port2"
 set type ppp
 set remote-ip ${gwlb_ip2}
 next
