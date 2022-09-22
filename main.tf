@@ -293,6 +293,7 @@ module "base-vpc" {
   # TGW, then you don't need the tgw connect subnets. So...
   #
   # create_tgw_connect_subnets      = var.create_transit_gateway ? true : false
+  #
   create_tgw_connect_subnets      = true
   public1_description             = var.public1_description
   public2_description             = var.public2_description
@@ -320,8 +321,8 @@ module "vpc-gwlb" {
   elb_listener_port                = var.elb_listener_port
   enable_cross_az_lb               = var.enable_cross_az_lb
   vpc_id                           = module.base-vpc.vpc_id
-  instance1_ip                     = module.fortigate_1.network_private_interface_ip
-  instance2_ip                     = module.fortigate_2.network_private_interface_ip
+  instance1_ip                     = element(module.fortigate_1.network_private_interface_ip, 0)
+  instance2_ip                     = element(module.fortigate_2.network_private_interface_ip, 0)
 }
 #
 # Point the tgw route table default route to the gwlb endpoint. All traffic that comes from the

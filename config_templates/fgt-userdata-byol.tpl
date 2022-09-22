@@ -31,7 +31,7 @@ edit port2
 set alias private
 set mode static
 set ip ${Port2IP} ${private_subnet_mask}
-set allowaccess ping fgfm
+set allowaccess ping fgfm https
 set mtu-override enable
 set mtu 9001
 next
