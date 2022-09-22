@@ -1,4 +1,7 @@
-
+#
+# Define tags as a local and push down to all the modules via the provider default_tags.
+# See below default_tags below
+#
 locals {
     common_tags = {
     Environment = var.env
@@ -9,6 +12,10 @@ locals {
     id_tag = var.vpc_tag_key != "" ? tomap({(var.vpc_tag_key) = (var.vpc_tag_value)}) : {}
 }
 
+#
+# Provider default_tags
+# ref: https://www.hashicorp.com/blog/default-tags-in-the-terraform-aws-provider
+#
 provider "aws" {
   region     = var.aws_region
   default_tags {
@@ -16,6 +23,9 @@ provider "aws" {
   }
 }
 
+#
+# Locals to make az definitions and subnet'g easier.
+#
 locals {
   availability_zone_1 = "${var.aws_region}${var.availability_zone1}"
 }
@@ -63,12 +73,24 @@ locals {
 locals {
   fortimanager_ip_address = cidrhost(local.tgw_subnet_cidr_az1, var.fortimanager_host_ip)
 }
+
+#
+# Some resources need unique names (e.g. security groups).
+# Generate a random string and append to any resources that need unique names
+#
 resource "random_string" "random" {
   length           = 5
   special          = false
 }
 
-
+#
+# Userdata with variable substitutions for the Fortigate configuration.
+# This template is for the BYOL instances. Same as the PAYGO, but with
+# the license file attached at the bottom of the template using FortiOS syntax
+# Template files are in ./config_templates.
+#
+# This iteration is for the Fortigate in AZ1
+#
 data "template_file" "fgt_userdata_byol1" {
   template = file("./config_templates/fgt-userdata-byol.tpl")
 
@@ -275,6 +297,14 @@ module "base-vpc" {
   vpc_tag_value                   = var.vpc_tag_value
 }
 
+#
+# Module call to build the gateway load balancer. FortiOS geneve tunnel configuration
+# is in the Fortigate configuration template file above. Use the "enable_cross_az_lb"
+# bool to load balance across AZ's. If you don't, make sure you understand the fail-open
+# behavior of the AWS GWLB.
+#
+# ref: https://aws.amazon.com/blogs/networking-and-content-delivery/best-practices-for-deploying-gateway-load-balancer/
+#
 module "vpc-gwlb" {
   source                           = "git::https://github.com/40netse/terraform-modules.git//aws_gwlb"
   name                             = "${var.cp}-${var.env}"
@@ -287,7 +317,11 @@ module "vpc-gwlb" {
   instance2_id                     = module.fortigate_2.instance_id
 }
 #
-# Point the tgw route table default route to the gwlb endpoint
+# Point the tgw route table default route to the gwlb endpoint. All traffic that comes from the
+# TGW and enters the tgw_subnet, gets pushed to the GWLB Endpoint and sent to the Fortigate
+# for inspection. All traffic that goes to the Fortigate, from the Geneve tunnel, must go back
+# to the GWLB to maintain GWLB state. This happens using the Fortigate Policy Routes. See the
+# Fortigate config templates.
 #
 resource "aws_route" "gwlb_endpoint_az1" {
   depends_on             = [module.vpc-gwlb]
@@ -306,6 +340,10 @@ resource "aws_route" "gwlb_endpoint_az2" {
   vpc_endpoint_id        = module.vpc-gwlb.gwlb_endpoint_az2
 }
 
+#
+# Create the Transit Gateway and connect the customer VPC's to the Security VPC.
+# TODO: allow route propogation where applicable
+#
 module "vpc-transit-gateway" {
   count                           = var.create_transit_gateway ? 1 : 0
   source                          = "git::https://github.com/40netse/terraform-modules.git//aws_tgw"
@@ -317,7 +355,8 @@ module "vpc-transit-gateway" {
 }
 
 #
-# Point the private route table default route to the TGW
+# Point the private route table default route to the TGW. This allows ingress traffic to
+# be routed to the subnets behind the TGW.
 #
 resource "aws_route" "tgw1" {
   depends_on             = [module.vpc-transit-gateway]
@@ -338,6 +377,10 @@ resource "aws_route" "tgw2" {
 
 #
 # Security VPC Transit Gateway Attachment, Route Table and Routes
+#
+# Make sure you understand appliace_mode_support for the TGW attachment for E-W inspection
+# TGW Flow symmetry matters for E-W. Only applicable to the Security VPC attachment.
+# ref: https://aws.amazon.com/blogs/networking-and-content-delivery/best-practices-for-deploying-gateway-load-balancer/
 #
 module "vpc-transit-gateway-attachment-security" {
   count                          = var.create_transit_gateway ? 1 : 0
@@ -367,6 +410,10 @@ resource "aws_ec2_transit_gateway_route_table_association" "security" {
   transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.security[0].id
 }
 
+#
+# Point cidr specific routes from the security VPC to the proper TGW Attachment.
+# TODO: should/could use route_propagation here.
+#
 resource "aws_ec2_transit_gateway_route" "tgw_route_security_default" {
   count                          = var.create_transit_gateway ? 1 : 0
   destination_cidr_block         = var.vpc_cidr_west
@@ -408,6 +455,10 @@ resource "aws_ec2_transit_gateway_route_table_association" "east" {
   transit_gateway_attachment_id  = module.vpc-transit-gateway-attachment-east[0].tgw_attachment_id
   transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.east[0].id
 }
+
+#
+# Default routes in the customer VPCs should push the traffic to the security VPC for inspection.
+#
 resource "aws_ec2_transit_gateway_route" "tgw_route_east_default" {
   count                          = var.create_transit_gateway ? 1 : 0
   destination_cidr_block         = "0.0.0.0/0"
@@ -472,23 +523,6 @@ resource "aws_default_route_table" "route_security" {
     Name = "default table for security vpc (unused)"
   }
 }
-/* TGW Route Tables should point to GWLB Endpoint in this deployment
-#
-# Private 1 and 2 subnets that are connected to the TGW
-# These route tables point to the ENI of the ACTIVE Fortigate
-#
-resource "aws_route" "tgw1_default_route" {
-  route_table_id         = element(module.base-vpc.tgw1_route_table_id, 0)
-  destination_cidr_block = "0.0.0.0/0"
-  network_interface_id   = element(module.fortigate_1.network_private_interface_id, 0)
-}
-resource "aws_route" "tgw2_default_route" {
-  route_table_id         = element(module.base-vpc.tgw2_route_table_id, 0)
-  destination_cidr_block = "0.0.0.0/0"
-  network_interface_id   = element(module.fortigate_1.network_private_interface_id, 0)
-}
-*/
-
 
 #
 # East VPC
@@ -588,6 +622,12 @@ module "iam_profile" {
 
 }
 
+#
+# Fortigate in AZ1. Using a generic ec2_instance module. Only AP pairs use the sync and mgmt interfaces,
+# so disabled for AA Pair.
+#
+# use create_public_elastic_ip bool if you want EIPs on the public interface
+#
 module "fortigate_1" {
   source                      = "git::https://github.com/40netse/terraform-modules.git//aws_ec2_instance"
 
@@ -611,6 +651,15 @@ module "fortigate_1" {
   userdata_rendered           = var.use_fortigate_byol ? data.template_file.fgt_userdata_byol1.rendered : data.template_file.fgt_userdata_paygo1.rendered
 }
 
+
+#
+# Fortigate in AZ2.
+# Using a generic ec2_instance module. Only AP pairs use the sync and mgmt interfaces,
+# so disabled for AA Pair.
+#
+# use create_public_elastic_ip bool if you want EIPs on the public interface
+# use proper userdata rendering and AMI IDs, based on BYOL vs. PAYGO
+#
 module "fortigate_2" {
   source                      = "git::https://github.com/40netse/terraform-modules.git//aws_ec2_instance"
 
@@ -750,7 +799,9 @@ module "west_instance" {
 }
 
 #
-# Fortimanager
+# Optional Fortimanager deployment.
+# TODO: 7.0.x, 7.2.x broke the AMI lookup for BYOL I think. AMI is choosen based on the number of
+# TODO: managed instances. just use PAYGO (use_fortimanager_byol = false) until I figure this out.
 #
 module "fortimanager" {
   source                      = "git::https://github.com/40netse/fortimanager_existing_vpc.git"

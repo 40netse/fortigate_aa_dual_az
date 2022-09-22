@@ -14,10 +14,12 @@ are configured with autoscale "configuration sync" enabled. This allows the Fort
 secondary member. A warning banner is displayed if an administrator attempts to login to the secondary member and make 
 configuration changes. 
 
-Additionally, booleans are provided to enable the creation of customer VPC's with linux instances 
-in each customer VPC, preconfigured with a base Apache Server. These instances can be used to generate test traffic 
-that can be used to verify Fortigate inspection of North-South and East-West flows. Configurable options in the template
-are as follows:
+Additionally, true/false variables are provided to enable certain features in the template, such as, the creation of 
+customer VPC's with linux instances in each customer VPC, preconfigured with a base Apache Server. These instances 
+can be used to generate test traffic that can be used to verify Fortigate inspection of North-South and East-West 
+flows. 
+
+Configurable options in the template are as follows:
     
     use_fortigate_byol = true           # Use BYOL licensing on the Fortigate. Include licenses in /licenses directory
     create_transit_gateway = true       # create a Transit Gateway. If true, conditionally create the following:
