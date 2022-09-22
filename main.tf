@@ -286,14 +286,21 @@ module "base-vpc" {
   availability_zone2              = var.availability_zone2
   vpc_cidr_security               = var.vpc_cidr_security
   subnet_bits                     = var.subnet_bits
-  create_tgw_connect_subnets      = var.create_transit_gateway ? true : false
+  #
+  # Conditionally create the tgw connect subnets, based on creating a TGW
+  # If TGW already exists and you want the connect subnets in place for the attachments,
+  # Then the second line makes sense. If you are using GRE tunnels from Fortigates to
+  # TGW, then you don't need the tgw connect subnets. So...
+  #
+  # create_tgw_connect_subnets      = var.create_transit_gateway ? true : false
+  create_tgw_connect_subnets      = true
   public1_description             = var.public1_description
   public2_description             = var.public2_description
   private1_description            = var.private1_description
   private2_description            = var.private2_description
   tgw1_description                = var.tgw1_description
   tgw2_description                = var.tgw2_description
-  vpc_tag_key                      = var.vpc_tag_key
+  vpc_tag_key                     = var.vpc_tag_key
   vpc_tag_value                   = var.vpc_tag_value
 }
 
@@ -313,8 +320,8 @@ module "vpc-gwlb" {
   elb_listener_port                = var.elb_listener_port
   enable_cross_az_lb               = var.enable_cross_az_lb
   vpc_id                           = module.base-vpc.vpc_id
-  instance1_id                     = module.fortigate_1.instance_id
-  instance2_id                     = module.fortigate_2.instance_id
+  instance1_ip                     = module.fortigate_1.network_private_interface_ip
+  instance2_ip                     = module.fortigate_2.network_private_interface_ip
 }
 #
 # Point the tgw route table default route to the gwlb endpoint. All traffic that comes from the
