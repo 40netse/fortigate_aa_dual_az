@@ -9,6 +9,7 @@ Content-Disposition: attachment; filename="config"
 
 config system global
 set hostname ${fgt_id}
+set admin-sport ${admin_port}
 end
 config system admin
 edit "admin"

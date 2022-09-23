@@ -114,6 +114,7 @@ data "template_file" "fgt_userdata_byol1" {
     config-sync-port      = var.config_sync_port
     config-sync-secret    = var.config_sync_secret
     config-sync-primary-peer-stanza = ""
+    admin_port            = var.fgt_admin_sport
   }
 }
 
@@ -141,6 +142,7 @@ data "template_file" "fgt_userdata_byol2" {
     config-sync-port      = var.config_sync_port
     config-sync-secret    = var.config_sync_secret
     config-sync-primary-peer-stanza = "set primary-ip ${local.fgt_public1_ip_address}"
+    admin_port            = var.fgt_admin_sport
   }
 }
 
@@ -166,6 +168,7 @@ data "template_file" "fgt_userdata_paygo1" {
     config-sync-port      = var.config_sync_port
     config-sync-secret    = var.config_sync_secret
     config-sync-primary-peer-stanza = ""
+    admin_port            = var.fgt_admin_sport
   }
 }
 
@@ -192,6 +195,7 @@ data "template_file" "fgt_userdata_paygo2" {
     config-sync-port      = var.config_sync_port
     config-sync-secret    = var.config_sync_secret
     config-sync-primary-peer-stanza = "set primary-ip ${local.fgt_public1_ip_address}"
+    admin_port            = var.fgt_admin_sport
   }
 }
 

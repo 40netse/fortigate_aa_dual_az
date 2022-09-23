@@ -52,6 +52,10 @@ variable "vpc_cidr_west" {
 variable "fgt_admin_password" {
   description = "Fortigate Admin Password"
 }
+variable "fgt_admin_sport" {
+  description = "Adminstrative TCP Port for HTTPS GUI"
+  default = 443
+}
 variable "fortios_version" {
   description = "FortiOS Version for the AMI Search String"
 }

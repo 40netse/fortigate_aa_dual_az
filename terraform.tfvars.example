@@ -37,6 +37,7 @@ vpc_cidr_east               = "192.168.0.0/24"
 vpc_cidr_west               = "192.168.1.0/24"
 
 fgt_admin_password          = "Texas4me!"
+fgt_admin_sport             = 443
 fortios_version             = "7.2.1"
 fgt_byol_1_license          = "./licenses/fgt1-license.lic"
 fgt_byol_2_license          = "./licenses/fgt2-license.lic"
@@ -59,7 +60,7 @@ enable_linux_instances                = true
 # Enable cross az load balancing on the Gateway Load Balancer
 #
 enable_cross_az_lb                    = true
-elb_listener_port                     = "80"
+elb_listener_port                     = "443"
 
 #
 # Conditional for configuring the elastic IPs. Set management IPs to false if managing through direct connect
