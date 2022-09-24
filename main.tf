@@ -23,6 +23,9 @@ provider "aws" {
   }
 }
 
+locals {
+  ssm_parameter_store_name = "/${var.cp}/${var.env}/${var.fgt_password_parameter_name}"
+}
 #
 # Locals to make az definitions and subnet'g easier.
 #
@@ -83,6 +86,9 @@ resource "random_string" "random" {
   special          = false
 }
 
+data "aws_ssm_parameter" "fgt_password" {
+  name = local.ssm_parameter_store_name
+}
 #
 # Userdata with variable substitutions for the Fortigate configuration.
 # This template is for the BYOL instances. Same as the PAYGO, but with
@@ -106,7 +112,7 @@ data "template_file" "fgt_userdata_byol1" {
     public_subnet_mask    = cidrnetmask(local.public_subnet_cidr_az1)
     private_subnet_mask   = cidrnetmask(local.private_subnet_cidr_az1)
     PrivateSubnetRouterIP = cidrhost(local.private_subnet_cidr_az1, 1)
-    fgt_admin_password    = var.fgt_admin_password
+    fgt_admin_password    = var.use_parameter_store ? data.aws_ssm_parameter.fgt_password.value : var.fgt_admin_password
     fortimanager_ip       = local.fortimanager_ip_address
     gwlb_ip1              = element(module.vpc-gwlb.gwlb_ip1, 0)
     gwlb_ip2              = element(module.vpc-gwlb.gwlb_ip2, 0)
@@ -134,7 +140,7 @@ data "template_file" "fgt_userdata_byol2" {
     public_subnet_mask    = cidrnetmask(local.public_subnet_cidr_az2)
     private_subnet_mask   = cidrnetmask(local.private_subnet_cidr_az2)
     PrivateSubnetRouterIP = cidrhost(local.private_subnet_cidr_az2, 1)
-    fgt_admin_password    = var.fgt_admin_password
+    fgt_admin_password    = var.use_parameter_store ? data.aws_ssm_parameter.fgt_password.value : var.fgt_admin_password
     fortimanager_ip       = local.fortimanager_ip_address
     gwlb_ip1              = element(module.vpc-gwlb.gwlb_ip1, 0)
     gwlb_ip2              = element(module.vpc-gwlb.gwlb_ip2, 0)
@@ -160,7 +166,7 @@ data "template_file" "fgt_userdata_paygo1" {
     public_subnet_mask    = cidrnetmask(local.public_subnet_cidr_az1)
     private_subnet_mask   = cidrnetmask(local.private_subnet_cidr_az1)
     PrivateSubnetRouterIP = cidrhost(local.private_subnet_cidr_az1, 1)
-    fgt_admin_password    = var.fgt_admin_password
+    fgt_admin_password    = var.use_parameter_store ? data.aws_ssm_parameter.fgt_password.value : var.fgt_admin_password
     fortimanager_ip       = local.fortimanager_ip_address
     gwlb_ip1              = element(module.vpc-gwlb.gwlb_ip1, 0)
     gwlb_ip2              = element(module.vpc-gwlb.gwlb_ip2, 0)
@@ -187,7 +193,7 @@ data "template_file" "fgt_userdata_paygo2" {
     public_subnet_mask    = cidrnetmask(local.public_subnet_cidr_az2)
     private_subnet_mask   = cidrnetmask(local.private_subnet_cidr_az2)
     PrivateSubnetRouterIP = cidrhost(local.private_subnet_cidr_az2, 1)
-    fgt_admin_password    = var.fgt_admin_password
+    fgt_admin_password    = var.use_parameter_store ? data.aws_ssm_parameter.fgt_password.value : var.fgt_admin_password
     fortimanager_ip       = local.fortimanager_ip_address
     gwlb_ip1              = element(module.vpc-gwlb.gwlb_ip1, 0)
     gwlb_ip2              = element(module.vpc-gwlb.gwlb_ip2, 0)

@@ -2,11 +2,11 @@
 
 output "_1_fgt1_login_info" {
   description = "Fortigate 1 login URL"
-  value = "fgt1 login url: https://${element(module.fortigate_1.public_eip, 0)}"
+  value = "fgt1 login url: https://${element(module.fortigate_1.public_eip, 0)}:${var.fgt_admin_sport}"
 }
 output "_2_fgt2_login_info" {
   description = "Fortigate 2 login URL"
-  value = "fgt2 login url: https://${element(module.fortigate_2.public_eip, 0)}"
+  value = "fgt2 login url: https://${element(module.fortigate_2.public_eip, 0)}:${var.fgt_admin_sport}"
 
 }
 output "_3_east_instance_login_info" {

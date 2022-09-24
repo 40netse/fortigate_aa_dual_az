@@ -52,6 +52,14 @@ variable "vpc_cidr_west" {
 variable "fgt_admin_password" {
   description = "Fortigate Admin Password"
 }
+variable "fgt_password_parameter_name" {
+  description = "Password Parameter Name in SSM for default Fortigate Password"
+}
+variable "use_parameter_store" {
+  description = "Boolean to use AWS Systems Manager Parameter Store to store Fortigate Password"
+  type = bool
+  default = false
+}
 variable "fgt_admin_sport" {
   description = "Adminstrative TCP Port for HTTPS GUI"
   default = 443

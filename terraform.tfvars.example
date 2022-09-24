@@ -36,7 +36,18 @@ vpc_cidr_security           = "10.0.0.0/16"
 vpc_cidr_east               = "192.168.0.0/24"
 vpc_cidr_west               = "192.168.1.0/24"
 
-fgt_admin_password          = "Texas4me!"
+#
+# If use_parameter_store is true, use the parameter store to lookup the Fortigate password
+# The default parameter name is /${var.cp}/${var.env}/${var.fgt_password_parameter_name}
+# If you want to change the default parameter name, change the locals variable in main.tf
+#
+# ssm_parameter_store_name = "/${var.cp}/${var.env}/${var.fgt_password_parameter_name}"
+#
+# If false, then put the password in the tfvars file under fgt_admin_password
+#
+use_parameter_store         = true
+fgt_password_parameter_name = "password"
+fgt_admin_password          = ""
 fgt_admin_sport             = 443
 fortios_version             = "7.2.1"
 fgt_byol_1_license          = "./licenses/fgt1-license.lic"
